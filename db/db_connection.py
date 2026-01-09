@@ -73,6 +73,5 @@ class DbConnection:
 
 if __name__ == "__main__":
     conn = DbConnection()
-    res = conn.search("reduction of CO", neighbor_window=10)
-    for doc in res:
-        print(doc)
+    res = conn.search("Theoretical Analyses of Hydrogen-rich Reduction in Blast Furnace", neighbor_window=2)
+    print(res)

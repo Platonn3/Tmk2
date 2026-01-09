@@ -14,7 +14,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 
 
-class HybridPaperDownloader:
+class Downloader:
     def __init__(self, save_dir="../data_sources"):
         self.save_dir = save_dir
         if not os.path.exists(save_dir):
@@ -46,46 +46,6 @@ class HybridPaperDownloader:
         except Exception as e:
             print(f"Ошибка при скачивании файла: {e}")
             return False
-
-    def try_api(self, url):
-        print("\n[Шаг 1] Попытка через Semantic Scholar API...")
-        api_endpoint = f"https://api.semanticscholar.org/graph/v1/paper/URL:{url}?fields=title,openAccessPdf,externalIds"
-
-        try:
-            r = requests.get(api_endpoint, headers={"User-Agent": self.ua.random}, timeout=10)
-            if r.status_code == 200:
-                data = r.json()
-                pdf_info = data.get('openAccessPdf')
-
-                if pdf_info and pdf_info.get('url'):
-                    print("Найдена Open Access ссылка через API!")
-                    title = data.get('title', 'paper_api')
-                    return self._download_stream(pdf_info['url'], self._sanitize_filename(title))
-                else:
-                    print("Статья найдена в базе, но нет прямой ссылки на PDF.")
-            else:
-                print(f"API не вернул данных (Код: {r.status_code}).")
-        except Exception as e:
-            print(f"Ошибка подключения к API: {e}")
-
-        return False
-
-    def try_heuristic(self, url):
-        print("\n[Шаг 2] Попытка через преобразование ссылке (J-STAGE Heuristic)...")
-        if "jstage.jst.go.jp" in url and "_html" in url:
-            pdf_url = url.replace("_html", "_pdf")
-            if "/-char/" in pdf_url:
-                pdf_url = pdf_url.split("/-char/")[0]
-
-            print(f"Сгенерирована вероятная ссылка: {pdf_url}")
-            try:
-                check = requests.head(pdf_url, headers={'User-Agent': self.ua.random}, timeout=5)
-                if check.status_code == 200 and 'pdf' in check.headers.get('Content-Type', ''):
-                    return self._download_stream(pdf_url, "jstage_heuristic_article.pdf")
-            except:
-                pass
-        print("Эвристический метод не сработал.")
-        return False
 
     def try_selenium(self, url):
         print("\n[Шаг 3] Запуск Selenium (Имитация браузера)...")
@@ -143,16 +103,10 @@ class HybridPaperDownloader:
     def process(self, url):
         print(f"\n{'=' * 60}\nОбработка: {url}\n{'=' * 60}")
 
-        if self.try_api(url):
-            return
-
-        if self.try_heuristic(url):
-            return
-
-        self.try_selenium(url)
+        return self.try_selenium(url)
 
 
 if __name__ == "__main__":
-    downloader = HybridPaperDownloader()
+    downloader = Downloader()
     target_link = "https://arxiv.org/html/2601.05236v1"
     downloader.process(target_link)
