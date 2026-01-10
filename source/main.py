@@ -2,7 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 from source.api.v1.ingest import router as ingest_router
 
-
+# TODO: асинхронная обработка задач через celery
 app = FastAPI(
     title="LLM API"
 )
