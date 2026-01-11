@@ -1,5 +1,4 @@
 from fastapi import APIRouter, status, HTTPException
-from starlette.concurrency import run_in_threadpool
 
 from source.schemas.request import ArticleDownload
 from source.services.downloader import Downloader
@@ -8,7 +7,6 @@ from db.populate_db import add_single_document_to_db
 
 
 router = APIRouter(prefix="/article", tags=["articles"])
-
 
 @router.post(
     "/",
@@ -26,4 +24,4 @@ async def download_article(data: ArticleDownload) -> dict:
 
         return {"status": "SUCCESS"}
     except Exception:
-        raise HTTPException(status_code=500, detail="При скачивании статьи произошла ошибка")
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="При скачивании статьи произошла ошибка")

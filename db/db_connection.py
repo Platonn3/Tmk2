@@ -2,6 +2,8 @@ from langchain_core.documents import Document
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 
+import os
+
 class DbConnection:
     def __init__(self):
         self.embeddings = HuggingFaceEmbeddings(
@@ -9,9 +11,15 @@ class DbConnection:
             model_kwargs={'device': 'cpu'}
         )
 
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+
+        db_path = os.path.join(current_dir, "vector_store")
+
+        print(f"Подключение к БД по пути: {db_path}")
+
         self.db = Chroma(
             embedding_function=self.embeddings,
-            persist_directory="vector_store"
+            persist_directory=db_path
         )
 
     def search(self, query: str, k: int = 5, neighbor_window: int = 1) -> list[Document]:
