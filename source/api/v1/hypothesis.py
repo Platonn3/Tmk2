@@ -4,7 +4,7 @@ from source.schemas.request import HypothesisRequest
 from source.services.llm import get_llm_response
 
 
-router = APIRouter(prefix="/api/v1/hypothesis", tags=["hypothesis"])
+router = APIRouter(prefix="/hypothesis", tags=["hypothesis"])
 
 @router.post(
     path="/",
