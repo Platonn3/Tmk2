@@ -1,5 +1,6 @@
 import os
 import requests
+from celery import shared_task
 from dotenv import load_dotenv
 
 from source.services.promt import get_prompt
@@ -8,6 +9,7 @@ load_dotenv()
 API_KEY = os.getenv("API_KEY")
 
 
+@shared_task(name="source.services.llm.get_llm_response")
 def get_llm_response(text: str) -> str:
     prompt = get_prompt(text)
     url = "https://openrouter.ai/api/v1/chat/completions"
