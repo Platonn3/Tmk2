@@ -19,7 +19,7 @@ def get_llm_response(text: str) -> str:
     }
 
     payload = {
-        "model": "qwen/qwen3-coder:free",
+        "model": "google/gemini-2.0-flash-exp:free",
         "messages": [
             {
                 "role": "user",

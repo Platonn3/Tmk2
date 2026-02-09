@@ -1,15 +1,32 @@
 import os
 import hashlib
+
+from fastapi import FastAPI
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from contextlib import asynccontextmanager
 
-print("Loading Embedding Model...")
-embedding_function = HuggingFaceEmbeddings(
-    model_name="sentence-transformers/all-MiniLM-L6-v2",
-    model_kwargs={'device': 'cpu'}
-)
+
+embedding_function = None
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global embedding_function
+    try:
+        print("Loading Embedding Model...")
+        embedding_function = HuggingFaceEmbeddings(
+            model_name="sentence-transformers/all-MiniLM-L6-v2",
+            model_kwargs={'device': 'cpu'}
+        )
+        yield
+    except Exception as e:
+        print(f"Произошла ошибка при загрузки модели: {e}")
+    finally:
+        print("Освобождаю ресурсы от модели")
+        if not embedding_function is None:
+            embedding_function = None
 
 
 def add_single_document_to_db(file_path: str, persist_directory: str = "vector_store") -> None:
